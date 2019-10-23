@@ -135,7 +135,7 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
     }
 
     @Override
-    public void onJobSelectedForFavorites(boolean isSaved, JobItem jobItem) {
+    public void onJobSelectedForFavorites(JobItem jobItem) {
 
     }
 
@@ -147,6 +147,11 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
     @Override
     public void onShowMessage(int messageRes) {
         runOnUiThread(() -> showToastMessage(messageRes));
+    }
+
+    @Override
+    public void onGetNextItemPage(int pageIndex) {
+        
     }
 
     @Override

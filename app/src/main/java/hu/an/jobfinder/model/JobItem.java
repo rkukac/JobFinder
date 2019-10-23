@@ -8,6 +8,7 @@ public class JobItem {
     private String mLocation;
     private String mTitle;
     private String mDescription;
+    private boolean mIsFavorite;
 
     public JobItem() {}
 
@@ -66,5 +67,13 @@ public class JobItem {
 
     public void setDescription(String mDescription) {
         this.mDescription = mDescription;
+    }
+
+    public boolean isFavorite() {
+        return mIsFavorite;
+    }
+
+    public void setFavorite(boolean mIsFavorite) {
+        this.mIsFavorite = mIsFavorite;
     }
 }

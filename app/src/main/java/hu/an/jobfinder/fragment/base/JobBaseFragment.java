@@ -29,9 +29,9 @@ public abstract class JobBaseFragment extends Fragment {
         }
     }
 
-    public void selectedForFavorites(boolean isSaved, JobItem jobItem) {
+    public void selectedForFavorites(JobItem jobItem) {
         if (mListener != null) {
-            mListener.onJobSelectedForFavorites(isSaved, jobItem);
+            mListener.onJobSelectedForFavorites(jobItem);
         }
     }
 
@@ -44,6 +44,12 @@ public abstract class JobBaseFragment extends Fragment {
     public void showMessage(@StringRes int messageRes) {
         if (mListener != null){
             mListener.onShowMessage(messageRes);
+        }
+    }
+
+    public void getNextItemPage(int pageIndex){
+        if (mListener != null){
+            mListener.onGetNextItemPage(pageIndex);
         }
     }
 }
