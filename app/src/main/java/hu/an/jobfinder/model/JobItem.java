@@ -11,6 +11,15 @@ public class JobItem {
 
     public JobItem() {}
 
+    public JobItem(String mId, String mCompany, String mCompanyUrl, String mLocation, String mTitle, String mDescription) {
+        this.mId = mId;
+        this.mCompany = mCompany;
+        this.mCompanyUrl = mCompanyUrl;
+        this.mLocation = mLocation;
+        this.mTitle = mTitle;
+        this.mDescription = mDescription;
+    }
+
     public String getId() {
         return mId;
     }

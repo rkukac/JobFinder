@@ -140,6 +140,16 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
     }
 
     @Override
+    public void onJobSearch(String description, String location, int pageIndex) {
+
+    }
+
+    @Override
+    public void onShowMessage(int messageRes) {
+        runOnUiThread(() -> showToastMessage(messageRes));
+    }
+
+    @Override
     public void onClick(View v) {
         if (v != null) {
             switch (v.getId()) {

@@ -1,6 +1,7 @@
 package hu.an.jobfinder.fragment.base;
 
 import android.content.Context;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 
 import hu.an.jobfinder.interfaces.OnFragmentInteractionListener;
@@ -22,15 +23,27 @@ public abstract class JobBaseFragment extends Fragment {
         mListener = null;
     }
 
-    public void selectedForDetails(boolean fromList, JobItem jobItem){
-        if (mListener != null){
+    public void selectedForDetails(boolean fromList, JobItem jobItem) {
+        if (mListener != null) {
             mListener.onJobSelectedForDetails(fromList, jobItem);
         }
     }
 
-    public void selectedForFavorites(boolean isSaved, JobItem jobItem){
-        if (mListener != null){
+    public void selectedForFavorites(boolean isSaved, JobItem jobItem) {
+        if (mListener != null) {
             mListener.onJobSelectedForFavorites(isSaved, jobItem);
+        }
+    }
+
+    public void search(String description, String location, int pageIndex) {
+        if (mListener != null) {
+            mListener.onJobSearch(description, location, pageIndex);
+        }
+    }
+
+    public void showMessage(@StringRes int messageRes) {
+        if (mListener != null){
+            mListener.onShowMessage(messageRes);
         }
     }
 }

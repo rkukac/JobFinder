@@ -3,4 +3,11 @@
     <string name="title_search">Search</string>
     <string name="title_search_list">Search list</string>
     <string name="title_favorites">Favorites</string>
+    <string name="search_title">Search on GitHub Jobs</string>
+    <string name="search_title_description">Job Description</string>
+    <string name="search_hint_description">Filter by title, benefits, companies, expertise</string>
+    <string name="search_title_location">Location</string>
+    <string name="search_hint_location">Filter by city, state, zip code or country</string>
+    <string name="button_search">Search</string>
+    <string name="alert_message_missing_search_params">Please add description or location</string>
 </resources>
