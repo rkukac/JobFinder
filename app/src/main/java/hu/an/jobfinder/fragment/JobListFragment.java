@@ -1,6 +1,9 @@
 package hu.an.jobfinder.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,18 +21,32 @@ import hu.an.jobfinder.model.JobItem;
 
 public class JobListFragment extends JobBaseFragment implements OnListInteractionListener {
 
+    private static final String BUNDLE_KEY_LIST_IS_FAVORITE = "KeyListIsFavorite";
+
     private RecyclerView mRecycleView;
+    private boolean mIsFavoriteList;
+    private boolean mIsAdapterInited = false;
+    private List<JobItem> mPendingList;
+    private int mPendingPageIndex = 0;
+    private boolean mPendingHasNextPage = true;
 
     public JobListFragment() {
     }
 
-    public static JobListFragment newInstance() {
-        return new JobListFragment();
+    public static JobListFragment newInstance(boolean isFavoriteList) {
+        JobListFragment fragment = new JobListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(BUNDLE_KEY_LIST_IS_FAVORITE, isFavoriteList);
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mIsFavoriteList = getArguments().getBoolean(BUNDLE_KEY_LIST_IS_FAVORITE, false);
+        }
     }
 
     @Override
@@ -38,19 +55,49 @@ public class JobListFragment extends JobBaseFragment implements OnListInteractio
         if (view instanceof RecyclerView) {
             mRecycleView = (RecyclerView) view;
             mRecycleView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-            mRecycleView.setAdapter(new JobListAdapter(new ArrayList<>(), this, true));
+            mRecycleView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                }
+
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (dy > 0) {
+                        LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                        if (mRecycleView.getAdapter() != null && !((JobListAdapter) mRecycleView.getAdapter()).isLoading()) {
+                            if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == mRecycleView.getAdapter().getItemCount() - 1) {
+                                //bottom of list!
+                                new Handler().post(() -> ((JobListAdapter) mRecycleView.getAdapter()).getNextItemPage());
+                            }
+                        }
+                    }
+                }
+            });
+            JobListAdapter adapter = new JobListAdapter(this, mIsFavoriteList);
+            if (mPendingList != null && mPendingList.size() > 0) {
+                adapter.addNextPageItems(mPendingList, mPendingPageIndex, mPendingHasNextPage);
+                mPendingList.clear();
+            }
+            mRecycleView.setAdapter(adapter);
+            mIsAdapterInited = true;
+            if (mIsFavoriteList){
+                getFavoriteList();
+            }
         }
         return view;
     }
 
     @Override
     public void onItemSelected(JobItem item) {
-
+        selectedForDetails(mIsFavoriteList, item);
     }
 
     @Override
     public void onSetItemFavorite(JobItem item) {
-
+        selectedForFavorites(item);
     }
 
     @Override
@@ -58,9 +105,27 @@ public class JobListFragment extends JobBaseFragment implements OnListInteractio
         getNextItemPage(pageIndex);
     }
 
-    public void addNextPageItems(List<JobItem> items) {
+    @Override
+    public void addNextPageItems(List<JobItem> items, int pageIndex, boolean hasNextPage) {
+        if (mIsAdapterInited) {
+            if (mRecycleView != null && mRecycleView.getAdapter() instanceof JobListAdapter) {
+                ((JobListAdapter) mRecycleView.getAdapter()).addNextPageItems(items, pageIndex, hasNextPage);
+            }
+        } else {
+            if (mPendingList == null) {
+                mPendingList = new ArrayList<>();
+            }
+            mPendingList.addAll(items);
+            mPendingPageIndex = pageIndex;
+            mPendingHasNextPage = hasNextPage;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
         if (mRecycleView != null && mRecycleView.getAdapter() instanceof JobListAdapter) {
-            ((JobListAdapter) mRecycleView.getAdapter()).addNextPageItems(items);
+            ((JobListAdapter)mRecycleView.getAdapter()).resetLoading();
         }
     }
 }

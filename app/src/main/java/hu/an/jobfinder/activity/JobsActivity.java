@@ -6,17 +6,20 @@ import android.util.SparseArray;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import java.util.List;
+
 import hu.an.jobfinder.R;
 import hu.an.jobfinder.activity.base.BaseActivity;
 import hu.an.jobfinder.fragment.JobDetailsFragment;
-import hu.an.jobfinder.fragment.JobFavoritesFragment;
 import hu.an.jobfinder.fragment.JobListFragment;
 import hu.an.jobfinder.fragment.JobSearchFragment;
 import hu.an.jobfinder.fragment.base.JobBaseFragment;
 import hu.an.jobfinder.interfaces.OnFragmentInteractionListener;
+import hu.an.jobfinder.interfaces.OnJobProviderListener;
 import hu.an.jobfinder.model.JobItem;
+import hu.an.jobfinder.provider.JobProvider;
 
-public class JobsActivity extends BaseActivity implements OnFragmentInteractionListener, View.OnClickListener {
+public class JobsActivity extends BaseActivity implements OnFragmentInteractionListener, View.OnClickListener, OnJobProviderListener {
 
     private static final int FRAGMENT_KEY_SEARCH = 0;
     private static final int FRAGMENT_KEY_LIST = 1;
@@ -38,6 +41,23 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jobs);
         init(savedInstanceState);
+        JobProvider.getInstance().addJobProviderListener(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        JobProvider.getInstance().removeJobProviderListener();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     private void init(Bundle savedInstanceState) {
@@ -62,9 +82,9 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
     private void initFragments() {
         mFragmentMap = new SparseArray<>();
         mFragmentMap.put(FRAGMENT_KEY_SEARCH, JobSearchFragment.newInstance());
-        mFragmentMap.put(FRAGMENT_KEY_LIST, JobListFragment.newInstance());
+        mFragmentMap.put(FRAGMENT_KEY_LIST, JobListFragment.newInstance(false));
         mFragmentMap.put(FRAGMENT_KEY_DETAILS, JobDetailsFragment.newInstance());
-        mFragmentMap.put(FRAGMENT_KEY_FAVORITES, JobFavoritesFragment.newInstance());
+        mFragmentMap.put(FRAGMENT_KEY_FAVORITES, JobListFragment.newInstance(true));
     }
 
     private void setFragment(int fragmentKey) {
@@ -120,28 +140,18 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
     public void onJobSelectedForDetails(boolean fromList, JobItem jobItem) {
-
+        runOnUiThread(() -> setFragment(FRAGMENT_KEY_DETAILS));
     }
 
     @Override
     public void onJobSelectedForFavorites(JobItem jobItem) {
-
+        JobProvider.getInstance().setFavoriteItem(jobItem);
     }
 
     @Override
     public void onJobSearch(String description, String location, int pageIndex) {
-
+        JobProvider.getInstance().getJobsFromApi(description, location, pageIndex);
     }
 
     @Override
@@ -151,7 +161,19 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
 
     @Override
     public void onGetNextItemPage(int pageIndex) {
-        
+        JobProvider.getInstance().getJobsFromApi(pageIndex);
+    }
+
+    @Override
+    public void onShowListFragment() {
+        if (mIndexCurrentFragment != FRAGMENT_KEY_LIST) {
+            runOnUiThread(() -> setFragment(FRAGMENT_KEY_LIST));
+        }
+    }
+
+    @Override
+    public void onGetFavoriteList() {
+        JobProvider.getInstance().getFavoriteItems();
     }
 
     @Override
@@ -165,6 +187,13 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
                     setFragment(mIndexNextFragment);
                     break;
             }
+        }
+    }
+
+    @Override
+    public void onNewJobList(List<JobItem> list, int pageIndex, boolean hasNextPage) {
+        if (mIndexCurrentFragment == FRAGMENT_KEY_LIST || mIndexCurrentFragment == FRAGMENT_KEY_FAVORITES) {
+            mFragmentMap.get(mIndexCurrentFragment).addNextPageItems(list, pageIndex, hasNextPage);
         }
     }
 }

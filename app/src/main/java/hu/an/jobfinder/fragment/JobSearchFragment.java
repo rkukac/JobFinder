@@ -43,6 +43,7 @@ public class JobSearchFragment extends JobBaseFragment implements View.OnClickLi
     private void startSearch() {
         if ((mEditTextDescription.getText() != null && !mEditTextDescription.getText().toString().isEmpty()) ||
                 (mEditTextLocation.getText() != null && !mEditTextLocation.getText().toString().isEmpty())) {
+            showListFragment();
             search(mEditTextDescription.getText().toString().trim(), mEditTextLocation.getText().toString().trim(), 0);
         } else {
             showMessage(R.string.alert_message_missing_search_params);

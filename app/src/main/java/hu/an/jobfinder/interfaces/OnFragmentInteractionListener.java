@@ -10,4 +10,6 @@ public interface OnFragmentInteractionListener {
     void onJobSearch(String description, String location, int pageIndex);
     void onShowMessage(@StringRes int messageRes);
     void onGetNextItemPage(int pageIndex);
+    void onShowListFragment();
+    void onGetFavoriteList();
 }

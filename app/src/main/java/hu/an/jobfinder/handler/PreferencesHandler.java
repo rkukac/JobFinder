@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import hu.an.jobfinder.model.JobItem;
+
 public class PreferencesHandler {
 
     private static final String PREFERENCES_NAME = "JobFinder";
@@ -57,18 +59,18 @@ public class PreferencesHandler {
         mSharedPref.edit().putString(key, value).apply();
     }
 
-    public List<String> getStringList(String key) {
+    public List<JobItem> getJobList(String key) {
         String serialized = mSharedPref.getString(key, "");
         if (serialized != null) {
             try {
-                return mMapper.readValue(serialized, new TypeReference<List<String>>() {
+                return mMapper.readValue(serialized, new TypeReference<List< JobItem >>() {
                 });
             } catch (Exception ignore) {}
         }
         return new ArrayList<>();
     }
 
-    public void setStringList(String key, List<String> listValue) {
+    public void setJobList(String key, List<JobItem> listValue) {
         try {
             mSharedPref.edit().putString(key, mMapper.writeValueAsString(listValue)).apply();
         } catch (JsonProcessingException ignore) {}
