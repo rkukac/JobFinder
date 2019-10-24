@@ -140,8 +140,11 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
     }
 
     @Override
-    public void onJobSelectedForDetails(boolean fromList, JobItem jobItem) {
-        runOnUiThread(() -> setFragment(FRAGMENT_KEY_DETAILS));
+    public void onJobSelectedForDetails(boolean fromFavoriteList, JobItem jobItem) {
+        runOnUiThread(() -> {
+            ((JobDetailsFragment) mFragmentMap.get(FRAGMENT_KEY_DETAILS)).setJobItem(fromFavoriteList, jobItem);
+            setFragment(FRAGMENT_KEY_DETAILS);
+        });
     }
 
     @Override

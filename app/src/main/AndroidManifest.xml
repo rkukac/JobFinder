@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="hu.an.jobfinder">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".JobFinderApplication"
         android:allowBackup="true"

@@ -25,9 +25,9 @@ public abstract class JobBaseFragment extends Fragment {
         mListener = null;
     }
 
-    public void selectedForDetails(boolean fromList, JobItem jobItem) {
+    public void selectedForDetails(boolean fromFavoriteList, JobItem jobItem) {
         if (mListener != null) {
-            mListener.onJobSelectedForDetails(fromList, jobItem);
+            mListener.onJobSelectedForDetails(fromFavoriteList, jobItem);
         }
     }
 
