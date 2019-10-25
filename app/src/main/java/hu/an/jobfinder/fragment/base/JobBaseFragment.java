@@ -44,28 +44,32 @@ public abstract class JobBaseFragment extends Fragment {
     }
 
     public void showMessage(@StringRes int messageRes) {
-        if (mListener != null){
+        if (mListener != null) {
             mListener.onShowMessage(messageRes);
         }
     }
 
-    public void getNextItemPage(int pageIndex){
-        if (mListener != null){
+    public void getNextItemPage(int pageIndex) {
+        if (mListener != null) {
             mListener.onGetNextItemPage(pageIndex);
         }
     }
 
-    public void showListFragment(){
-        if (mListener != null){
+    public void showListFragment() {
+        if (mListener != null) {
             mListener.onShowListFragment();
         }
     }
 
-    public void getFavoriteList(){
-        if (mListener != null){
+    public void getFavoriteList() {
+        if (mListener != null) {
             mListener.onGetFavoriteList();
         }
     }
 
-    public void addNextPageItems(List<JobItem> items, int pageIndex, boolean hasNextPage) {}
+    public void addNextPageItems(List<JobItem> items, int pageIndex, boolean hasNextPage) {
+    }
+
+    public void resetAdapter() {
+    }
 }

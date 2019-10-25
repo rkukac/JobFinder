@@ -30,6 +30,7 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
     private int mIndexCurrentFragment;
     private int mIndexPrevFragment;
     private int mIndexNextFragment;
+    private boolean mIsPreviousMultiList;
 
     private AppCompatTextView mTextViewPrevTitle;
     private AppCompatTextView mTextViewNextTitle;
@@ -38,6 +39,7 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jobs);
         init(savedInstanceState);
@@ -72,11 +74,7 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
         initFragments();
         mIndexPrevFragment = -1;
         mIndexNextFragment = -1;
-        //if (savedInstanceState == null) {
-        //mFragmentJobSearch = JobSearchFragment.newInstance();
         setFragment(FRAGMENT_KEY_SEARCH);
-
-        //}
     }
 
     private void initFragments() {
@@ -89,7 +87,6 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
 
     private void setFragment(int fragmentKey) {
         setNavigation(fragmentKey);
-        mIndexCurrentFragment = fragmentKey;
         loadFragment(R.id.container, mFragmentMap.get(fragmentKey));
     }
 
@@ -108,10 +105,18 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
                 mIndexNextFragment = -1;
                 break;
             case FRAGMENT_KEY_FAVORITES:
-                mIndexPrevFragment = mIndexCurrentFragment == FRAGMENT_KEY_LIST ? FRAGMENT_KEY_LIST : FRAGMENT_KEY_SEARCH;
+                if (mIsPreviousMultiList){
+                    mIndexPrevFragment = FRAGMENT_KEY_LIST;
+                    mIsPreviousMultiList = false;
+                }else {
+                    mIsPreviousMultiList = mIndexCurrentFragment == FRAGMENT_KEY_LIST;
+                    mIndexPrevFragment = mIndexCurrentFragment == FRAGMENT_KEY_LIST ? FRAGMENT_KEY_LIST : FRAGMENT_KEY_SEARCH;
+                }
                 mIndexNextFragment = -1;
+
                 break;
         }
+        mIndexCurrentFragment = fragmentKey;
         setNavigationView();
     }
 
@@ -124,6 +129,9 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
             mTextViewNextTitle.setText(getNavigationText(mIndexNextFragment));
         }
         mLayoutNext.setVisibility(mIndexNextFragment == -1 ? View.GONE : View.VISIBLE);
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setTitle(getNavigationText(mIndexCurrentFragment));
+        }
     }
 
     private String getNavigationText(int fragmentIndex) {
@@ -136,6 +144,8 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
                 return getString(R.string.title_search_list);
             case FRAGMENT_KEY_FAVORITES:
                 return getString(R.string.title_favorites);
+            case FRAGMENT_KEY_DETAILS:
+                return getString(R.string.title_details);
         }
     }
 
@@ -184,12 +194,25 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
         if (v != null) {
             switch (v.getId()) {
                 case R.id.ll_prev:
-                    setFragment(mIndexPrevFragment);
+                    onBackPressed();
                     break;
                 case R.id.ll_next:
                     setFragment(mIndexNextFragment);
                     break;
             }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            super.onBackPressed();
+            if (mIndexCurrentFragment == FRAGMENT_KEY_LIST || mIndexCurrentFragment == FRAGMENT_KEY_FAVORITES) {
+                mFragmentMap.get(mIndexCurrentFragment).resetAdapter();
+            }
+            setNavigation(mIndexPrevFragment);
+        }else {
+            finish();
         }
     }
 

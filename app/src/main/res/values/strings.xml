@@ -3,6 +3,7 @@
     <string name="title_search">Search</string>
     <string name="title_search_list">Search list</string>
     <string name="title_favorites">Favorites</string>
+    <string name="title_details">Details</string>
     <string name="search_title">Search on GitHub Jobs</string>
     <string name="search_title_description">Job Description</string>
     <string name="search_hint_description">Filter by title, benefits, companies, expertise</string>

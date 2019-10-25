@@ -24,6 +24,7 @@ public class JobListFragment extends JobBaseFragment implements OnListInteractio
     private static final String BUNDLE_KEY_LIST_IS_FAVORITE = "KeyListIsFavorite";
 
     private RecyclerView mRecycleView;
+    private JobListAdapter mAdapter;
     private boolean mIsFavoriteList;
     private boolean mIsAdapterInited = false;
     private List<JobItem> mPendingList;
@@ -67,21 +68,23 @@ public class JobListFragment extends JobBaseFragment implements OnListInteractio
                     if (dy > 0) {
                         LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
-                        if (mRecycleView.getAdapter() != null && !((JobListAdapter) mRecycleView.getAdapter()).isLoading()) {
-                            if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == mRecycleView.getAdapter().getItemCount() - 1) {
+                        if (mAdapter != null && !mAdapter.isLoading()) {
+                            if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == mAdapter.getItemCount() - 1) {
                                 //bottom of list!
-                                new Handler().post(() -> ((JobListAdapter) mRecycleView.getAdapter()).getNextItemPage());
+                                new Handler().post(() -> mAdapter.getNextItemPage());
                             }
                         }
                     }
                 }
             });
-            JobListAdapter adapter = new JobListAdapter(this, mIsFavoriteList);
+            if (mAdapter == null) {
+                mAdapter = new JobListAdapter(this, mIsFavoriteList);
+            }
             if (mPendingList != null && mPendingList.size() > 0) {
-                adapter.addNextPageItems(mPendingList, mPendingPageIndex, mPendingHasNextPage);
+                mAdapter.addNextPageItems(mPendingList, mPendingPageIndex, mPendingHasNextPage);
                 mPendingList.clear();
             }
-            mRecycleView.setAdapter(adapter);
+            mRecycleView.setAdapter(mAdapter);
             mIsAdapterInited = true;
             if (mIsFavoriteList) {
                 getFavoriteList();
@@ -108,8 +111,8 @@ public class JobListFragment extends JobBaseFragment implements OnListInteractio
     @Override
     public void addNextPageItems(List<JobItem> items, int pageIndex, boolean hasNextPage) {
         if (mIsAdapterInited) {
-            if (mRecycleView != null && mRecycleView.getAdapter() instanceof JobListAdapter) {
-                ((JobListAdapter) mRecycleView.getAdapter()).addNextPageItems(items, pageIndex, hasNextPage);
+            if (mAdapter != null) {
+                mAdapter.addNextPageItems(items, pageIndex, hasNextPage);
             }
         } else {
             if (mPendingList == null) {
@@ -124,8 +127,13 @@ public class JobListFragment extends JobBaseFragment implements OnListInteractio
     @Override
     public void onDetach() {
         super.onDetach();
-        if (mRecycleView != null && mRecycleView.getAdapter() instanceof JobListAdapter) {
-            ((JobListAdapter) mRecycleView.getAdapter()).resetLoading();
+        if (mAdapter != null) {
+            mAdapter.resetLoading();
         }
+    }
+
+    @Override
+    public void resetAdapter() {
+        mAdapter = null;
     }
 }

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
@@ -17,6 +18,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void loadFragment(int container, Fragment fragment) {
         getSupportFragmentManager().beginTransaction()
                 .replace(container, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .addToBackStack(null)
                 .commit();
     }
 
