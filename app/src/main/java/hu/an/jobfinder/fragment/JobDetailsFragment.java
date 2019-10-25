@@ -56,7 +56,7 @@ public class JobDetailsFragment extends JobBaseFragment {
                 mTextViewCompany.setMovementMethod(LinkMovementMethod.getInstance());
             }
             mTextViewLocation.setText(mJobItem.getLocation());
-            mTextViewDescription.setText(mJobItem.getDescription());
+            mTextViewDescription.setText(Html.fromHtml(mJobItem.getDescription()));
             mImageViewFavorite.setImageResource(mJobItem.isFavorite() ? R.drawable.star_filled_24 : R.drawable.star_border_24);
             mImageViewFavorite.setOnClickListener(v -> {
                 mJobItem.setFavorite(!mJobItem.isFavorite());

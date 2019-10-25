@@ -6,8 +6,11 @@ import java.util.List;
 import hu.an.jobfinder.handler.PreferencesHandler;
 import hu.an.jobfinder.interfaces.OnJobProviderListener;
 import hu.an.jobfinder.model.JobItem;
+import hu.an.jobfinder.service.ServiceManager;
+import hu.an.jobfinder.service.interfaces.OnServiceManagerListener;
+import hu.an.jobfinder.service.model.GitHubJobModel;
 
-public class JobProvider {
+public class JobProvider implements OnServiceManagerListener {
 
     private OnJobProviderListener mJobProviderListener;
 
@@ -26,10 +29,12 @@ public class JobProvider {
 
     public void addJobProviderListener(OnJobProviderListener listener) {
         mJobProviderListener = listener;
+        ServiceManager.getInstance().addServiceManagerListener(this);
     }
 
     public void removeJobProviderListener() {
         mJobProviderListener = null;
+        ServiceManager.getInstance().removeServiceManagerListener();
     }
 
     private void notifyNewJobList(List<JobItem> list, int pageIndex, boolean hasNextPage) {
@@ -68,9 +73,8 @@ public class JobProvider {
     }
 
     public void getJobsFromApi(String description, String location, int pageIndex) {
-        //TODO - add service call
         boolean isNewCall = false;
-        if ((mCurrentDescription != null && !mCurrentDescription.equals(description)) || (mCurrentLocation != null && !mCurrentLocation.equals(location))) {
+        if ((description != null && !description.equals(mCurrentDescription)) || (location != null && !location.equals(mCurrentLocation))) {
             isNewCall = true;
         }
         if (isNewCall) {
@@ -80,18 +84,38 @@ public class JobProvider {
         } else {
             mCurrentPageIndex = pageIndex;
         }
-        notifyNewJobList(getMockList(), mCurrentPageIndex, true);
+        ServiceManager.getInstance().getPositionList(mCurrentDescription, mCurrentLocation, mCurrentPageIndex);
     }
 
-    private List<JobItem> getMockList() {
-        return new ArrayList<JobItem>() {{
-            add(new JobItem("1", "Comp1", "https://jobs.github.com/api", "New", "Title", "sdasdasdasdasdsadsa cdc ds cac  dsac sa cs a"));
-            add(new JobItem("2", "Comp2", "https://jobs.github.com/api", "New", "Title", "sdasdasdasdasdsadsa cdc ds cac  dsac sa cs a"));
-            add(new JobItem("3", "Comp3", "https://jobs.github.com/api", "New", "Title", "sdasdasdasdasdsadsa cdc ds cac  dsac sa cs a"));
-            add(new JobItem("4", "Comp4", "https://jobs.github.com/api", "New", "Title", "sdasdasdasdasdsadsa cdc ds cac  dsac sa cs a"));
-            add(new JobItem("5", "Comp5", "https://jobs.github.com/api", "New", "Title", "sdasdasdasdasdsadsa cdc ds cac  dsac sa cs a"));
-            add(new JobItem("6", "Comp6", "https://jobs.github.com/api", "New", "Title", "sdasdasdasdasdsadsa cdc ds cac  dsac sa cs a"));
-            add(new JobItem("7", "Comp7", "https://jobs.github.com/api", "New", "Title", "sdasdasdasdasdsadsa cdc ds cac  dsac sa cs a"));
-        }};
+    @Override
+    public void onGetPositionListResult(List<GitHubJobModel> result, int paginationItemMax) {
+        processServiceResponse(result, paginationItemMax);
+    }
+
+    private void processServiceResponse(List<GitHubJobModel> result, int paginationItemMax) {
+        if (result.size() > 0) {
+            notifyNewJobList(convertList(result), mCurrentPageIndex, result.size() == paginationItemMax);
+        } else {
+            notifyNewJobList(new ArrayList<>(), mCurrentPageIndex, false);
+        }
+    }
+
+    private List<JobItem> convertList(List<GitHubJobModel> result) {
+        List<JobItem> list = new ArrayList<>();
+        List<JobItem> favorites = new ArrayList<>(getFavoriteList());
+        for (GitHubJobModel model : result) {
+            boolean isMatch = false;
+            for (JobItem favorite : favorites) {
+                if (favorite.getId().equals(model.getId())) {
+                    list.add(favorite);
+                    isMatch = true;
+                    break;
+                }
+            }
+            if (!isMatch) {
+                list.add(new JobItem(model.getId(), model.getCompany(), model.getCompanyUrl(), model.getLocation(), model.getTitle(), model.getDescription()));
+            }
+        }
+        return list;
     }
 }

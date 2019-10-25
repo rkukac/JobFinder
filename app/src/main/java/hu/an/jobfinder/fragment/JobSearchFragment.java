@@ -41,10 +41,11 @@ public class JobSearchFragment extends JobBaseFragment implements View.OnClickLi
     }
 
     private void startSearch() {
-        if ((mEditTextDescription.getText() != null && !mEditTextDescription.getText().toString().isEmpty()) ||
-                (mEditTextLocation.getText() != null && !mEditTextLocation.getText().toString().isEmpty())) {
+        String description = mEditTextDescription.getText() != null ? mEditTextDescription.getText().toString().toLowerCase().trim() : "";
+        String location = mEditTextLocation.getText() != null ? mEditTextLocation.getText().toString().toLowerCase().trim() : "";
+        if (!description.isEmpty() || !location.isEmpty()) {
             showListFragment();
-            search(mEditTextDescription.getText().toString().trim(), mEditTextLocation.getText().toString().trim(), 0);
+            search(description.replace(" ", "+"), location.replace(" ", "+"), 0);
         } else {
             showMessage(R.string.alert_message_missing_search_params);
         }

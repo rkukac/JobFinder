@@ -116,7 +116,7 @@ public class JobListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 mValues.remove(mValues.size() - 1);
             }
             mValues.addAll(items);
-            notifyItemRangeInserted(mValues.size() - items.size(), mValues.size());
+            notifyDataSetChanged();
         }
     }
 
@@ -130,7 +130,7 @@ public class JobListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public void resetLoading() {
-        if (isLoading()){
+        if (isLoading()) {
             mIsLoading = false;
             if (mValues.size() > 0 && mValues.get(mValues.size() - 1) == null) {
                 mValues.remove(mValues.size() - 1);

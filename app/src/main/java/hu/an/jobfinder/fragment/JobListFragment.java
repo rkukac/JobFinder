@@ -83,7 +83,7 @@ public class JobListFragment extends JobBaseFragment implements OnListInteractio
             }
             mRecycleView.setAdapter(adapter);
             mIsAdapterInited = true;
-            if (mIsFavoriteList){
+            if (mIsFavoriteList) {
                 getFavoriteList();
             }
         }
@@ -125,7 +125,7 @@ public class JobListFragment extends JobBaseFragment implements OnListInteractio
     public void onDetach() {
         super.onDetach();
         if (mRecycleView != null && mRecycleView.getAdapter() instanceof JobListAdapter) {
-            ((JobListAdapter)mRecycleView.getAdapter()).resetLoading();
+            ((JobListAdapter) mRecycleView.getAdapter()).resetLoading();
         }
     }
 }

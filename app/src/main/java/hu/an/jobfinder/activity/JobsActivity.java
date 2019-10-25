@@ -196,7 +196,7 @@ public class JobsActivity extends BaseActivity implements OnFragmentInteractionL
     @Override
     public void onNewJobList(List<JobItem> list, int pageIndex, boolean hasNextPage) {
         if (mIndexCurrentFragment == FRAGMENT_KEY_LIST || mIndexCurrentFragment == FRAGMENT_KEY_FAVORITES) {
-            mFragmentMap.get(mIndexCurrentFragment).addNextPageItems(list, pageIndex, hasNextPage);
+            runOnUiThread(() -> mFragmentMap.get(mIndexCurrentFragment).addNextPageItems(list, pageIndex, hasNextPage));
         }
     }
 }
